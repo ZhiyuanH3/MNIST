@@ -143,12 +143,13 @@ Optimizer = 'adam'
 loss_func = 'categorical_crossentropy'
 Metric    = ['accuracy']
 
+n_nodes   = 2
 n_epochs  = 20#10#2#3
 batch_s   = 32
 
 ST        = Sequential()
 ST.add( Flatten(input_shape=(pix_dim,pix_dim,)) )
-ST.add( Dense(2, activation='relu') )
+ST.add( Dense(n_nodes, activation='relu') )
 ST.add( Dense(n_class, activation='softmax') )
 
 
@@ -202,7 +203,9 @@ np.random.seed(seed=rd_seed)
 ST2        = Sequential()
 ST2.add( Flatten(input_shape=(pix_dim,pix_dim,)) )
 
-ST2.add( myDense(2) )
+#ST2.add( myDense(3) )
+#ST2.add( Activation('relu') )
+ST2.add( myDense(n_nodes) )
 ST2.add( Activation('relu') )
 
 ST2.add( Dense(n_class, activation='softmax') )
@@ -223,6 +226,20 @@ ST2.fit(
       )
 ST2.summary()
 ## Test custom layer###########################
+
+
+
+## Show learned weights:
+ii = 1
+for layer in ST2.layers:
+    g = layer.get_config()
+    h = layer.get_weights()
+    print '------------------------------------ Layer ', str(ii)
+    print g
+    print h
+    ii += 1
+
+
 
 
 
