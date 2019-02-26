@@ -4,11 +4,9 @@ from   keras .datasets import mnist
 n_event = 1000
 X_train = X_train[:n_event]
 y_train = y_train[:n_event]
-#X_train = X_train[~np.isnan(X_train)]
-#y_train = y_train[~np.isnan(y_train)]
-#X_test = X_test[~np.isnan(X_test)]
-#y_test = y_test[~np.isnan(y_test)]
+
 """
+## Back up data:
 import pickle
 dataDict            = {}
 dataDict['X_train'] = X_train
@@ -54,8 +52,6 @@ from sklearn.multiclass    import OneVsOneClassifier
 from sklearn.preprocessing import normalize
 from sklearn.svm           import LinearSVC
 from sklearn.preprocessing import StandardScaler
-
-from sklearn.externals     import joblib
 """
 ######################################################
 ## Custom layers:
@@ -91,10 +87,28 @@ class myDense_1(Layer):
         super(myDense_1, self).__init__(**kwargs)
 
     def build(self, input_shape):
+        ## Variance 1:
+        """    
         self.w = self.add_weight(name='w', 
                                  shape=(input_shape[1]-0, self.output_dim),
                                  initializer='RandomNormal',#'he_normal',#'zeros',#'uniform',     #'glorot_uniform',
                                  trainable=True)
+        """
+
+        ## Variance 2: 
+        #self.ww = K.variable( np.array([[0,0],[0,0]]) )
+        #print 'weight data type: ', self.ww.dtype
+         
+        self.www  = K.variable( np.array([1,2]) )
+        self.wwww = K.variable( np.array([4,4]) )
+        
+        ## Not working:
+        #self.ww   = K.variable( K.stack((self.www, self.wwww),axis=0) )  
+        
+        ## What is this method for?
+        #self.set_weights()
+
+        self.trainable_weights = [self.www,self.wwww]#[self.www]
         
         self.b = self.add_weight(name='b', 
                                  shape=(self.output_dim,),
@@ -103,10 +117,17 @@ class myDense_1(Layer):
         super(myDense_1, self).build(input_shape)  
 
     def call(self, x):
-        w_4 = self.w
-        #w_4 = K.variable( self.w  )  
-        return K.bias_add( K.dot(x, w_4), self.b )
+        ## Variance 1:
+        #w_4 = self.w
+        #return K.bias_add( K.dot(x, w_4), self.b )
+
+        ## Variance 2:   
+        #return K.bias_add( K.dot(x, self.ww), self.b ).astype('float32')
         
+        ## Variance 3:   
+        dp = K.dot(x, K.stack((self.www,self.wwww),axis=0))
+        return K.bias_add( dp, self.b ).astype('float32')
+
 
     def compute_output_shape(self, input_shape):    return (input_shape[0], self.output_dim)
 
