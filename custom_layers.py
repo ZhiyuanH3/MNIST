@@ -101,6 +101,7 @@ class myDense_1(Layer):
          
         self.www  = K.variable( np.array([1,2]) )
         self.wwww = K.variable( np.array([4,4]) )
+        self.www.set
         
         ## Not working:
         #self.ww   = K.variable( K.stack((self.www, self.wwww),axis=0) )  
@@ -125,6 +126,7 @@ class myDense_1(Layer):
         #return K.bias_add( K.dot(x, self.ww), self.b ).astype('float32')
         
         ## Variance 3:   
+        #K.concatenate
         dp = K.dot(x, K.stack((self.www,self.wwww),axis=0))
         return K.bias_add( dp, self.b ).astype('float32')
 
